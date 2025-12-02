@@ -49,8 +49,36 @@
 
     <hr>
 
+    <h2>Create Post</h2>
+    <form id="postForm">
+        <label>Title:</label><br>
+        <input type="text" id="postTitle" required><br><br>
+        
+        <label>Content:</label><br>
+        <textarea id="postBody" rows="4" cols="50" required></textarea><br><br>
+        
+        <button type="submit">Post</button>
+    </form>
+    <div id="postMessage"></div>
+
+    <hr>
+
+    <h2>Search Users</h2>
+    <input type="text" id="userSearchQuery" placeholder="Search by username or name">
+    <button onclick="searchUsers()">Search</button>
+    <div id="userSearchResults"></div>
+
+    <hr>
+
+    <h2>Search Content</h2>
+    <input type="text" id="contentSearchQuery" placeholder="Search posts">
+    <button onclick="searchContent()">Search</button>
+    <div id="contentSearchResults"></div>
+
+    <hr>
+
     <h2>Feed</h2>
-    <button onclick="loadFeed()">Load Feed</button>
+    <button onclick="loadFeed()">Load My Feed</button>
     <div id="feedContainer"></div>
 
     <script src="script.js"></script>
