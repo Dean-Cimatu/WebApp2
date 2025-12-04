@@ -1,6 +1,16 @@
-document.getElementById('registerForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
+/**
+ * Social Networking Website - Front-end JavaScript
+ * Student ID: M01046382
+ * All communication with server uses fetch() and JSON format
+ */
+
+// ===== REGISTRATION FUNCTIONALITY =====
+
+/**
+ * Handle user registration
+ * Sends user data to server and displays result
+ */
+function register() {
     const data = {
         username: document.getElementById('regUsername').value,
         email: document.getElementById('regEmail').value,
@@ -8,266 +18,319 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
         fullName: document.getElementById('regFullName').value
     };
 
-    try {
-        const response = await fetch('/M01046382/users', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        });
-
-        const text = await response.text();
+    fetch('/M01046382/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.text())
+    .then(text => {
         const result = text ? JSON.parse(text) : {};
-        
         const msgDiv = document.getElementById('registerMessage');
-        msgDiv.className = 'message ' + (result.success ? 'success' : 'error');
+        msgDiv.className = 'message show ' + (result.success ? 'success' : 'error');
         msgDiv.textContent = result.message;
 
         if (result.success) {
-            document.getElementById('registerForm').reset();
+            // Clear form fields on success
+            document.getElementById('regUsername').value = '';
+            document.getElementById('regEmail').value = '';
+            document.getElementById('regPassword').value = '';
+            document.getElementById('regFullName').value = '';
         }
-    } catch (error) {
-        document.getElementById('registerMessage').className = 'message error';
+    })
+    .catch(error => {
+        document.getElementById('registerMessage').className = 'message show error';
         document.getElementById('registerMessage').textContent = 'Error: ' + error.message;
-    }
-});
+    });
+}
 
-document.getElementById('loginForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
+// ===== LOGIN FUNCTIONALITY =====
+
+/**
+ * Handle user login
+ * Sends credentials to server and creates session
+ */
+function login() {
     const data = {
         email: document.getElementById('loginEmail').value,
         password: document.getElementById('loginPassword').value
     };
 
-    try {
-        const response = await fetch('/M01046382/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        });
-
-        const text = await response.text();
+    fetch('/M01046382/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.text())
+    .then(text => {
         const result = text ? JSON.parse(text) : {};
-        
         const msgDiv = document.getElementById('loginMessage');
-        msgDiv.className = 'message ' + (result.success ? 'success' : 'error');
+        msgDiv.className = 'message show ' + (result.success ? 'success' : 'error');
         msgDiv.textContent = result.message;
 
         if (result.success) {
-            document.getElementById('loginForm').reset();
+            // Clear form fields on success
+            document.getElementById('loginEmail').value = '';
+            document.getElementById('loginPassword').value = '';
         }
-    } catch (error) {
-        document.getElementById('loginMessage').className = 'message error';
+    })
+    .catch(error => {
+        document.getElementById('loginMessage').className = 'message show error';
         document.getElementById('loginMessage').textContent = 'Error: ' + error.message;
-    }
-});
+    });
+}
 
-async function checkStatus() {
-    try {
-        const response = await fetch('/M01046382/login');
-        
-        if (!response.ok) {
-            throw new Error('Server error');
-        }
-        
-        const text = await response.text();
+// ===== SESSION STATUS =====
+
+/**
+ * Check if user is logged in
+ * Displays current session status
+ */
+function checkStatus() {
+    fetch('/M01046382/login')
+    .then(response => response.text())
+    .then(text => {
         const result = text ? JSON.parse(text) : {};
-        
         const msgDiv = document.getElementById('statusMessage');
+        msgDiv.className = 'message show info';
         
         if (result.loggedIn) {
             msgDiv.textContent = `Logged in as: ${result.username} (ID: ${result.userId})`;
         } else {
             msgDiv.textContent = result.message || 'Not logged in';
         }
-    } catch (error) {
+    })
+    .catch(error => {
+        document.getElementById('statusMessage').className = 'message show error';
         document.getElementById('statusMessage').textContent = 'Error: ' + error.message;
-    }
+    });
 }
 
-async function logout() {
-    try {
-        const response = await fetch('/M01046382/login', {
-            method: 'DELETE'
-        });
-
-        if (!response.ok) {
-            throw new Error('Server error');
-        }
-
-        const text = await response.text();
+/**
+ * Logout user
+ * Destroys session on server
+ */
+function logout() {
+    fetch('/M01046382/login', {
+        method: 'DELETE'
+    })
+    .then(response => response.text())
+    .then(text => {
         const result = text ? JSON.parse(text) : {};
-        document.getElementById('statusMessage').textContent = result.message;
-    } catch (error) {
+        const msgDiv = document.getElementById('statusMessage');
+        msgDiv.className = 'message show success';
+        msgDiv.textContent = result.message;
+    })
+    .catch(error => {
+        document.getElementById('statusMessage').className = 'message show error';
         document.getElementById('statusMessage').textContent = 'Error: ' + error.message;
-    }
+    });
 }
 
-// Post content
-document.getElementById('postForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
+// ===== CONTENT POSTING =====
+
+/**
+ * Create a new post
+ * Requires user to be logged in
+ */
+function createPost() {
     const data = {
         title: document.getElementById('postTitle').value,
         body: document.getElementById('postBody').value
     };
 
-    try {
-        const response = await fetch('/M01046382/content', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        });
-
-        const text = await response.text();
+    fetch('/M01046382/contents', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.text())
+    .then(text => {
         const result = text ? JSON.parse(text) : {};
-        
         const msgDiv = document.getElementById('postMessage');
+        msgDiv.className = 'message show ' + (result.success ? 'success' : 'error');
         msgDiv.textContent = result.message;
 
         if (result.success) {
-            document.getElementById('postForm').reset();
+            // Clear form fields on success
+            document.getElementById('postTitle').value = '';
+            document.getElementById('postBody').value = '';
         }
-    } catch (error) {
+    })
+    .catch(error => {
+        document.getElementById('postMessage').className = 'message show error';
         document.getElementById('postMessage').textContent = 'Error: ' + error.message;
-    }
-});
+    });
+}
 
-// Search users
-async function searchUsers() {
+// ===== USER SEARCH =====
+
+/**
+ * Search for users by username or full name
+ * Displays results with follow/unfollow buttons
+ */
+function searchUsers() {
     const query = document.getElementById('userSearchQuery').value;
     
     if (!query) {
-        document.getElementById('userSearchResults').innerHTML = '<p>Please enter a search query</p>';
+        document.getElementById('userSearchResults').innerHTML = '<p class="message show error">Please enter a search query</p>';
         return;
     }
 
-    try {
-        const response = await fetch(`/M01046382/search/users?q=${encodeURIComponent(query)}`);
-
-        if (!response.ok) {
-            throw new Error('Server error');
-        }
-
-        const text = await response.text();
+    fetch(`/M01046382/users?q=${encodeURIComponent(query)}`)
+    .then(response => response.text())
+    .then(text => {
         const result = text ? JSON.parse(text) : { users: [] };
         const resultsContainer = document.getElementById('userSearchResults');
 
         if (result.users.length === 0) {
-            resultsContainer.innerHTML = '<p>No users found.</p>';
+            resultsContainer.innerHTML = '<p class="message show info">No users found.</p>';
             return;
         }
 
+        // Display user cards with follow/unfollow buttons
         resultsContainer.innerHTML = result.users.map(user => `
-            <div style="border: 1px solid #ccc; padding: 10px; margin: 10px 0;">
-                <strong>${user.fullName}</strong> (@${user.username})<br>
-                <small>${user.email}</small><br>
-                <button onclick="followUser('${user.username}')">Follow</button>
-                <button onclick="unfollowUser('${user.username}')">Unfollow</button>
+            <div class="user-card">
+                <div class="user-name">${user.fullName}</div>
+                <div class="user-email">@${user.username} • ${user.email}</div>
+                <button onclick="followUser('${user.username}')" class="btn btn-follow">Follow</button>
+                <button onclick="unfollowUser('${user.username}')" class="btn btn-unfollow">Unfollow</button>
             </div>
         `).join('');
-    } catch (error) {
-        document.getElementById('userSearchResults').innerHTML = 'Error: ' + error.message;
-    }
+    })
+    .catch(error => {
+        document.getElementById('userSearchResults').innerHTML = '<p class="message show error">Error: ' + error.message + '</p>';
+    });
 }
 
-// Follow user
-async function followUser(username) {
-    try {
-        const response = await fetch('/M01046382/follow', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ usernameToFollow: username })
-        });
+// ===== FOLLOW/UNFOLLOW FUNCTIONALITY =====
 
-        const text = await response.text();
+/**
+ * Follow a user
+ * Adds user to follows array
+ */
+function followUser(username) {
+    fetch('/M01046382/follow', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ usernameToFollow: username })
+    })
+    .then(response => response.text())
+    .then(text => {
         const result = text ? JSON.parse(text) : {};
-        alert(result.message);
-    } catch (error) {
-        alert('Error: ' + error.message);
-    }
+        const msgDiv = document.getElementById('followMessage');
+        msgDiv.className = 'message show ' + (result.success ? 'success' : 'error');
+        msgDiv.textContent = result.message;
+        
+        // Hide message after 3 seconds
+        setTimeout(() => {
+            msgDiv.className = 'message';
+        }, 3000);
+    })
+    .catch(error => {
+        const msgDiv = document.getElementById('followMessage');
+        msgDiv.className = 'message show error';
+        msgDiv.textContent = 'Error: ' + error.message;
+    });
 }
 
-// Unfollow user
-async function unfollowUser(username) {
-    try {
-        const response = await fetch('/M01046382/unfollow', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ usernameToUnfollow: username })
-        });
-
-        const text = await response.text();
+/**
+ * Unfollow a user
+ * Removes user from follows array
+ */
+function unfollowUser(username) {
+    fetch('/M01046382/follow', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ usernameToUnfollow: username })
+    })
+    .then(response => response.text())
+    .then(text => {
         const result = text ? JSON.parse(text) : {};
-        alert(result.message);
-    } catch (error) {
-        alert('Error: ' + error.message);
-    }
+        const msgDiv = document.getElementById('followMessage');
+        msgDiv.className = 'message show ' + (result.success ? 'success' : 'error');
+        msgDiv.textContent = result.message;
+        
+        // Hide message after 3 seconds
+        setTimeout(() => {
+            msgDiv.className = 'message';
+        }, 3000);
+    })
+    .catch(error => {
+        const msgDiv = document.getElementById('followMessage');
+        msgDiv.className = 'message show error';
+        msgDiv.textContent = 'Error: ' + error.message;
+    });
 }
 
-// Search content
-async function searchContent() {
+// ===== CONTENT SEARCH =====
+
+/**
+ * Search for posts by title or body content
+ * Shows results from all users (not just followed)
+ */
+function searchContent() {
     const query = document.getElementById('contentSearchQuery').value;
     
     if (!query) {
-        document.getElementById('contentSearchResults').innerHTML = '<p>Please enter a search query</p>';
+        document.getElementById('contentSearchResults').innerHTML = '<p class="message show error">Please enter a search query</p>';
         return;
     }
 
-    try {
-        const response = await fetch(`/M01046382/search/content?q=${encodeURIComponent(query)}`);
-
-        if (!response.ok) {
-            throw new Error('Server error');
-        }
-
-        const text = await response.text();
+    fetch(`/M01046382/contents?q=${encodeURIComponent(query)}`)
+    .then(response => response.text())
+    .then(text => {
         const result = text ? JSON.parse(text) : { content: [] };
         const resultsContainer = document.getElementById('contentSearchResults');
 
         if (result.content.length === 0) {
-            resultsContainer.innerHTML = '<p>No content found.</p>';
+            resultsContainer.innerHTML = '<p class="message show info">No content found.</p>';
             return;
         }
 
+        // Display post cards
         resultsContainer.innerHTML = result.content.map(post => `
-            <div style="border: 1px solid #ccc; padding: 10px; margin: 10px 0;">
-                <h3>${post.title}</h3>
-                <p>${post.body}</p>
-                <small>By: ${post.username} | ${new Date(post.createdAt).toLocaleString()}</small>
+            <div class="post-card">
+                <div class="post-title">${post.title}</div>
+                <div class="post-body">${post.body}</div>
+                <div class="post-meta">By: ${post.username} | ${new Date(post.createdAt).toLocaleString()}</div>
             </div>
         `).join('');
-    } catch (error) {
-        document.getElementById('contentSearchResults').innerHTML = 'Error: ' + error.message;
-    }
+    })
+    .catch(error => {
+        document.getElementById('contentSearchResults').innerHTML = '<p class="message show error">Error: ' + error.message + '</p>';
+    });
 }
 
-// Load personalized feed (only from followed users)
-async function loadFeed() {
-    try {
-        const response = await fetch('/M01046382/feed');
+// ===== PERSONALIZED FEED =====
 
-        if (!response.ok) {
-            throw new Error('Server error');
-        }
-
-        const text = await response.text();
+/**
+ * Load personalized feed
+ * Shows ONLY posts from users that the current user follows
+ * This is a critical requirement - must not show posts from unfollowed users
+ */
+function loadFeed() {
+    fetch('/M01046382/feed')
+    .then(response => response.text())
+    .then(text => {
         const result = text ? JSON.parse(text) : { content: [] };
         const feedContainer = document.getElementById('feedContainer');
 
         if (result.content.length === 0) {
-            feedContainer.innerHTML = '<p>' + (result.message || 'No posts in your feed.') + '</p>';
+            feedContainer.innerHTML = '<p class="message show info">' + (result.message || 'No posts in your feed. Follow some users to see their posts!') + '</p>';
             return;
         }
 
+        // Display feed posts
         feedContainer.innerHTML = result.content.map(post => `
-            <div style="border: 1px solid #ccc; padding: 10px; margin: 10px 0;">
-                <h3>${post.title}</h3>
-                <p>${post.body}</p>
-                <small>By: ${post.username} | ${new Date(post.createdAt).toLocaleString()}</small>
+            <div class="post-card">
+                <div class="post-title">${post.title}</div>
+                <div class="post-body">${post.body}</div>
+                <div class="post-meta">By: ${post.username} | ${new Date(post.createdAt).toLocaleString()}</div>
             </div>
         `).join('');
-    } catch (error) {
-        document.getElementById('feedContainer').innerHTML = 'Error: ' + error.message;
-    }
+    })
+    .catch(error => {
+        document.getElementById('feedContainer').innerHTML = '<p class="message show error">Error: ' + error.message + '</p>';
+    });
 }

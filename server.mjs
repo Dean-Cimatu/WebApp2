@@ -1,3 +1,13 @@
+/**
+ * Social Networking Website - Backend Server
+ * Student ID: M01046382
+ * 
+ * This server implements a RESTful API for a social networking platform
+ * All paths start with /M01046382/ as required by the specification
+ * Uses MongoDB for data storage (native driver, not Mongoose)
+ * All communication is in JSON format
+ */
+
 import express from 'express';
 import bodyParser from 'body-parser';
 import expressSession from 'express-session';
@@ -5,18 +15,28 @@ import { connectDB, getCollection } from './database.mjs';
 
 const app = express();
 
-app.use(bodyParser.json());
+// Middleware setup
+app.use(bodyParser.json()); // Parse JSON request bodies
 app.use(expressSession({
     secret: "simple-session-secret",
-    cookie: { maxAge: 3600000 },
+    cookie: { maxAge: 3600000 }, // 1 hour session
     saveUninitialized: false,
     resave: false
 }));
 
+// Serve static files (HTML, CSS, JS)
 app.use(express.static('.'));
 
+// Connect to MongoDB database
 await connectDB();
 
+// ===== AUTHENTICATION ENDPOINTS =====
+
+/**
+ * POST /M01046382/users - Register a new user
+ * Body: { username, email, password, fullName }
+ * Returns: Success message or error
+ */
 app.post('/M01046382/users', async (req, res) => {
     try {
         const { username, email, password, fullName } = req.body;
@@ -177,8 +197,8 @@ app.post('/M01046382/follow', async (req, res) => {
     }
 });
 
-// POST unfollow a user
-app.post('/M01046382/unfollow', async (req, res) => {
+// DELETE unfollow a user
+app.delete('/M01046382/follow', async (req, res) => {
     try {
         if (!req.session.userId) {
             return res.status(401).json({
@@ -258,87 +278,28 @@ app.get('/M01046382/feed', async (req, res) => {
     }
 });
 
-// GET search users
-app.get('/M01046382/search/users', async (req, res) => {
-    try {
-        const { q } = req.query;
 
-        if (!q) {
-            return res.status(400).json({
-                success: false,
-                message: 'Search query is required'
-            });
-        }
 
-        const users = await getCollection('users')
-            .find(
-                {
-                    $or: [
-                        { username: { $regex: q, $options: 'i' } },
-                        { fullName: { $regex: q, $options: 'i' } }
-                    ]
-                },
-                { projection: { password: 0 } }
-            )
-            .toArray();
 
-        res.json({
-            success: true,
-            count: users.length,
-            users: users
-        });
-    } catch (error) {
-        console.error('Error searching users:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Internal server error'
-        });
-    }
-});
 
-// GET search content
-app.get('/M01046382/search/content', async (req, res) => {
-    try {
-        const { q } = req.query;
-
-        if (!q) {
-            return res.status(400).json({
-                success: false,
-                message: 'Search query is required'
-            });
-        }
-
-        const content = await getCollection('content')
-            .find(
-                {
-                    $or: [
-                        { title: { $regex: q, $options: 'i' } },
-                        { body: { $regex: q, $options: 'i' } }
-                    ]
-                }
-            )
-            .sort({ createdAt: -1 })
-            .toArray();
-
-        res.json({
-            success: true,
-            count: content.length,
-            content: content
-        });
-    } catch (error) {
-        console.error('Error searching content:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Internal server error'
-        });
-    }
-});
-
-// GET all users
+// GET all users or search users
 app.get('/M01046382/users', async (req, res) => {
     try {
+        const { q } = req.query;
+        let query = {};
+        
+        // If search query provided, search username and fullName
+        if (q) {
+            query = {
+                $or: [
+                    { username: { $regex: q, $options: 'i' } },
+                    { fullName: { $regex: q, $options: 'i' } }
+                ]
+            };
+        }
+        
         const users = await getCollection('users')
-            .find({}, { projection: { password: 0 } }) // Exclude passwords
+            .find(query, { projection: { password: 0 } }) // Exclude passwords
             .toArray();
 
         res.json({
@@ -412,8 +373,8 @@ app.delete('/M01046382/users/:id', async (req, res) => {
     }
 });
 
-// POST create content
-app.post('/M01046382/content', async (req, res) => {
+// POST create contents
+app.post('/M01046382/contents', async (req, res) => {
     try {
         if (!req.session.userId) {
             return res.status(401).json({
@@ -455,11 +416,24 @@ app.post('/M01046382/content', async (req, res) => {
     }
 });
 
-// GET all content\
-app.get('/M01046382/content', async (req, res) => {
+// GET all contents or search contents
+app.get('/M01046382/contents', async (req, res) => {{
     try {
+        const { q } = req.query;
+        let query = {};
+        
+        // If search query provided, search title and body
+        if (q) {
+            query = {
+                $or: [
+                    { title: { $regex: q, $options: 'i' } },
+                    { body: { $regex: q, $options: 'i' } }
+                ]
+            };
+        }
+        
         const content = await getCollection('content')
-            .find({})
+            .find(query)
             .sort({ createdAt: -1 })
             .toArray();
 
@@ -477,8 +451,8 @@ app.get('/M01046382/content', async (req, res) => {
     }
 });
 
-// GET content by ID
-app.get('/M01046382/content/:id', async (req, res) => {
+// GET contents by ID
+app.get('/M01046382/contents/:id', async (req, res) => {
     try {
         const { ObjectId } = await import('mongodb');
         const content = await getCollection('content').findOne({
@@ -505,8 +479,8 @@ app.get('/M01046382/content/:id', async (req, res) => {
     }
 });
 
-// DELETE content by ID
-app.delete('/M01046382/content/:id', async (req, res) => {
+// DELETE contents by ID
+app.delete('/M01046382/contents/:id', async (req, res) => {
     try {
         const { ObjectId } = await import('mongodb');
         
@@ -579,18 +553,17 @@ app.listen(8080, () => {
     console.log(`  DELETE /M01046382/login - Logout`);
     console.log(`\n  Social Networking:`);
     console.log(`  POST   /M01046382/follow - Follow a user (requires login)`);
-    console.log(`  POST   /M01046382/unfollow - Unfollow a user (requires login)`);
+    console.log(`  DELETE /M01046382/follow - Unfollow a user (requires login)`);
     console.log(`  GET    /M01046382/feed - Get personalized feed from followed users (requires login)`);
-    console.log(`\n  Search:`);
-    console.log(`  GET    /M01046382/search/users?q=query - Search users by username or name`);
-    console.log(`  GET    /M01046382/search/content?q=query - Search content by title or body`);
     console.log(`\n  Users:`);
     console.log(`  GET    /M01046382/users - Get all users`);
+    console.log(`  GET    /M01046382/users?q=query - Search users by username or name`);
     console.log(`  GET    /M01046382/users/:id - Get user by ID`);
     console.log(`  DELETE /M01046382/users/:id - Delete user by ID`);
-    console.log(`\n  Content:`);
-    console.log(`  POST   /M01046382/content - Create content (requires login)`);
-    console.log(`  GET    /M01046382/content - Get all content`);
-    console.log(`  GET    /M01046382/content/:id - Get content by ID`);
-    console.log(`  DELETE /M01046382/content/:id - Delete content by ID (own content only)\n`);
+    console.log(`\n  Contents:`);
+    console.log(`  POST   /M01046382/contents - Create content (requires login)`);
+    console.log(`  GET    /M01046382/contents - Get all contents`);
+    console.log(`  GET    /M01046382/contents?q=query - Search contents by title or body`);
+    console.log(`  GET    /M01046382/contents/:id - Get content by ID`);
+    console.log(`  DELETE /M01046382/contents/:id - Delete content by ID (own content only)\n`);
 });
