@@ -334,3 +334,49 @@ function loadFeed() {
         document.getElementById('feedContainer').innerHTML = '<p class="message show error">Error: ' + error.message + '</p>';
     });
 }
+
+/**
+ * Load UK weather data from external API
+ * Fetches weather for London, UK
+ */
+function loadWeather() {
+    fetch('/M01046382/weather')
+    .then(response => response.json())
+    .then(result => {
+        const weatherDisplay = document.getElementById('weatherDisplay');
+        
+        if (result.success) {
+            const weatherCodes = {
+                0: 'Clear sky',
+                1: 'Mainly clear',
+                2: 'Partly cloudy',
+                3: 'Overcast',
+                45: 'Foggy',
+                48: 'Foggy',
+                51: 'Light drizzle',
+                61: 'Light rain',
+                63: 'Moderate rain',
+                65: 'Heavy rain',
+                71: 'Light snow',
+                95: 'Thunderstorm'
+            };
+            
+            const condition = weatherCodes[result.weathercode] || 'Unknown';
+            
+            weatherDisplay.innerHTML = `
+                <div class="weather-info">
+                    <h3>${result.location}</h3>
+                    <p><strong>Temperature:</strong> ${result.temperature}°C</p>
+                    <p><strong>Condition:</strong> ${condition}</p>
+                    <p><strong>Wind Speed:</strong> ${result.windspeed} km/h</p>
+                    <p><strong>Updated:</strong> ${new Date(result.time).toLocaleString()}</p>
+                </div>
+            `;
+        } else {
+            weatherDisplay.innerHTML = '<p class="message show error">' + result.message + '</p>';
+        }
+    })
+    .catch(error => {
+        document.getElementById('weatherDisplay').innerHTML = '<p class="message show error">Error loading weather: ' + error.message + '</p>';
+    });
+}

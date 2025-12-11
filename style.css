@@ -7,43 +7,41 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #ffffff;
     min-height: 100vh;
-    padding: 20px;
+    padding: 0;
 }
 
 /* Main Container */
 .container {
-    max-width: 800px;
-    margin: 0 auto;
+    max-width: 100%;
+    margin: 0;
     background: white;
-    border-radius: 10px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    overflow: hidden;
+    min-height: 100vh;
 }
 
 /* Header */
 header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #000000;
     color: white;
-    padding: 30px;
-    text-align: center;
+    padding: 20px 30px;
+    border-bottom: 2px solid #333;
 }
 
 header h1 {
-    font-size: 2.5em;
-    margin-bottom: 10px;
+    font-size: 2em;
+    margin-bottom: 5px;
 }
 
 .student-id {
-    font-size: 1.1em;
-    opacity: 0.9;
+    font-size: 0.9em;
+    color: #ccc;
 }
 
 /* Sections */
 .section {
-    padding: 30px;
-    border-bottom: 1px solid #e0e0e0;
+    padding: 30px 40px;
+    border-bottom: 1px solid #ddd;
 }
 
 .section:last-child {
@@ -51,16 +49,17 @@ header h1 {
 }
 
 .section h2 {
-    color: #333;
+    color: #000;
     margin-bottom: 20px;
-    font-size: 1.8em;
+    font-size: 1.5em;
+    font-weight: 600;
 }
 
 /* Form Containers */
 .form-container {
-    background: #f8f9fa;
+    background: #f9f9f9;
     padding: 20px;
-    border-radius: 8px;
+    border: 1px solid #ddd;
     margin-bottom: 15px;
 }
 
@@ -78,16 +77,15 @@ header h1 {
 /* Input Fields */
 .input-field {
     width: 100%;
-    padding: 12px;
-    border: 2px solid #ddd;
-    border-radius: 5px;
+    padding: 10px;
+    border: 1px solid #ccc;
     font-size: 1em;
-    transition: border-color 0.3s;
+    background: white;
 }
 
 .input-field:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: #000;
 }
 
 .textarea {
@@ -98,65 +96,80 @@ header h1 {
 
 /* Buttons */
 .btn {
-    padding: 12px 30px;
+    padding: 10px 25px;
     font-size: 1em;
-    font-weight: 600;
-    border: none;
-    border-radius: 5px;
+    font-weight: 500;
+    border: 2px solid #000;
+    background: #fff;
+    color: #000;
     cursor: pointer;
-    transition: all 0.3s;
     margin-right: 10px;
+    transition: all 0.2s;
+}
+
+.btn:hover {
+    background: #000;
+    color: #fff;
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    background: #000;
+    color: #fff;
+    border: 2px solid #000;
 }
 
 .btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    background: #fff;
+    color: #000;
 }
 
 .btn-secondary {
-    background: #6c757d;
-    color: white;
+    background: #fff;
+    color: #000;
+    border: 2px solid #000;
 }
 
 .btn-secondary:hover {
-    background: #5a6268;
+    background: #000;
+    color: #fff;
 }
 
 .btn-danger {
-    background: #dc3545;
-    color: white;
+    background: #fff;
+    color: #000;
+    border: 2px solid #000;
 }
 
 .btn-danger:hover {
-    background: #c82333;
+    background: #000;
+    color: #fff;
 }
 
 .btn-follow {
-    background: #28a745;
-    color: white;
+    background: #000;
+    color: #fff;
+    border: 2px solid #000;
     padding: 8px 20px;
     font-size: 0.9em;
     margin-right: 5px;
 }
 
 .btn-follow:hover {
-    background: #218838;
+    background: #fff;
+    color: #000;
 }
 
 .btn-unfollow {
-    background: #ffc107;
-    color: #333;
+    background: #fff;
+    color: #000;
+    border: 2px solid #000;
     padding: 8px 20px;
     font-size: 0.9em;
 }
 
 .btn-unfollow:hover {
-    background: #e0a800;
+    background: #000;
+    color: #fff;
 }
 
 /* Button Groups */
@@ -291,4 +304,28 @@ header h1 {
         width: 100%;
         margin-bottom: 10px;
     }
+}
+
+/* Weather display styling */
+.weather-display {
+    margin-top: 15px;
+}
+
+.weather-info {
+    padding: 15px;
+    border: 1px solid #ccc;
+    background: #f9f9f9;
+    margin-top: 10px;
+}
+
+.weather-info h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 1.3em;
+    color: #000;
+}
+
+.weather-info p {
+    margin: 8px 0;
+    font-size: 1em;
 }

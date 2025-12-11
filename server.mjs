@@ -12,6 +12,7 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import expressSession from 'express-session';
 import { connectDB, getCollection } from './database.mjs';
+import https from 'https';
 
 const app = express();
 
@@ -278,9 +279,44 @@ app.get('/M01046382/feed', async (req, res) => {
     }
 });
 
-
-
-
+// GET UK weather data from external API
+app.get('/M01046382/weather', (req, res) => {
+    const apiUrl = 'https://api.open-meteo.com/v1/forecast?latitude=51.5074&longitude=-0.1278&current_weather=true&timezone=Europe/London';
+    
+    https.get(apiUrl, (apiRes) => {
+        let data = '';
+        
+        apiRes.on('data', (chunk) => {
+            data += chunk;
+        });
+        
+        apiRes.on('end', () => {
+            try {
+                const weatherData = JSON.parse(data);
+                res.json({
+                    success: true,
+                    location: 'London, UK',
+                    temperature: weatherData.current_weather.temperature,
+                    windspeed: weatherData.current_weather.windspeed,
+                    weathercode: weatherData.current_weather.weathercode,
+                    time: weatherData.current_weather.time
+                });
+            } catch (error) {
+                console.error('Error parsing weather data:', error);
+                res.status(500).json({
+                    success: false,
+                    message: 'Error parsing weather data'
+                });
+            }
+        });
+    }).on('error', (error) => {
+        console.error('Error fetching weather:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching weather data'
+        });
+    });
+});
 
 // GET all users or search users
 app.get('/M01046382/users', async (req, res) => {
@@ -417,7 +453,7 @@ app.post('/M01046382/contents', async (req, res) => {
 });
 
 // GET all contents or search contents
-app.get('/M01046382/contents', async (req, res) => {{
+app.get('/M01046382/contents', async (req, res) => {
     try {
         const { q } = req.query;
         let query = {};
@@ -555,6 +591,8 @@ app.listen(8080, () => {
     console.log(`  POST   /M01046382/follow - Follow a user (requires login)`);
     console.log(`  DELETE /M01046382/follow - Unfollow a user (requires login)`);
     console.log(`  GET    /M01046382/feed - Get personalized feed from followed users (requires login)`);
+    console.log(`\n  Third-Party Data:`);
+    console.log(`  GET    /M01046382/weather - Get London, UK weather from external API`);
     console.log(`\n  Users:`);
     console.log(`  GET    /M01046382/users - Get all users`);
     console.log(`  GET    /M01046382/users?q=query - Search users by username or name`);
